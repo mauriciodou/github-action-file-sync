@@ -63,7 +63,7 @@ for repository in "${REPOSITORIES[@]}"; do
     REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_NAME}.git"
     GIT_PATH="${TEMP_PATH}${REPO_NAME}"
     echo "Cloning [$REPO_URL] to [$GIT_PATH]"
-    git clone --quiet --no-hardlinks --no-tags --depth 1 $REPO_URL $REPO_NAME
+    git clone --quiet --no-hardlinks --no-tags $REPO_URL $REPO_NAME
 
     cd $GIT_PATH
 

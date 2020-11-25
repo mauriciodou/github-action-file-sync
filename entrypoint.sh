@@ -134,15 +134,6 @@ for repository in "${REPOSITORIES[@]}"; do
     # push changes
     echo "Push changes to [${REPO_URL}]"
     git push $REPO_URL
-    if [ "$BRANCH_NAME" != "main" -a "$PULL_REQUEST" == "true" ]; then
-        echo "Creating pull request"
-        jq -n --arg title "File sync from ${GITHUB_REPOSITORY}" --arg head "$BRANCH_NAME" --arg base "main" '{title:$title,head:$head,base:$base}' | curl -d @- \
-            -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${GITHUB_TOKEN}" \
-            --silent \
-            ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls
-    fi
     cd $TEMP_PATH
     rm -rf $REPO_NAME
     echo "Completed [${REPO_NAME}]"

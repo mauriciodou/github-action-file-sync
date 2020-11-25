@@ -53,7 +53,7 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "Repository name: [$REPO_NAME]"
 
     # determine branch name
-    BRANCH_NAME="master"
+    BRANCH_NAME="main"
     if [ ${REPO_INFO[1]+yes} ]; then
         BRANCH_NAME="${REPO_INFO[1]}"
     fi
@@ -68,7 +68,7 @@ for repository in "${REPOSITORIES[@]}"; do
     cd $GIT_PATH
 
     # checkout the branch, if specified
-    if [ "$BRANCH_NAME" != "master" ]; then
+    if [ "$BRANCH_NAME" != "main" ]; then
         # try to check out the origin, if fails, then create the local branch
         git fetch && git checkout $BRANCH_NAME && git pull || git checkout -b $BRANCH_NAME
     fi
@@ -134,9 +134,9 @@ for repository in "${REPOSITORIES[@]}"; do
     # push changes
     echo "Push changes to [${REPO_URL}]"
     git push $REPO_URL
-    if [ "$BRANCH_NAME" != "master" -a "$PULL_REQUEST" == "true" ]; then
+    if [ "$BRANCH_NAME" != "main" -a "$PULL_REQUEST" == "true" ]; then
         echo "Creating pull request"
-        jq -n --arg title "File sync from ${GITHUB_REPOSITORY}" --arg head "$BRANCH_NAME" --arg base "master" '{title:$title,head:$head,base:$base}' | curl -d @- \
+        jq -n --arg title "File sync from ${GITHUB_REPOSITORY}" --arg head "$BRANCH_NAME" --arg base "main" '{title:$title,head:$head,base:$base}' | curl -d @- \
             -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -u ${USERNAME}:${GITHUB_TOKEN} \

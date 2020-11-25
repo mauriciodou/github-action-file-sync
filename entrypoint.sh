@@ -140,7 +140,7 @@ for repository in "${REPOSITORIES[@]}"; do
             -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             #-u ${USERNAME}:${GITHUB_TOKEN} \
-            -H "Authorization: token ${GITHUB_TOKEN}"
+            -H "Authorization: token ${GITHUB_TOKEN}" \
             --silent \
             ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls
     fi

@@ -53,7 +53,7 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "Repository name: [$REPO_NAME]"
 
     # determine branch name
-    BRANCH_NAME="main"
+    BRANCH_NAME="automation"
     if [ ${REPO_INFO[1]+yes} ]; then
         BRANCH_NAME="${REPO_INFO[1]}"
     fi

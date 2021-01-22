@@ -21,8 +21,8 @@ REPOSITORIES=($RAW_REPOSITORIES)
 echo "Repositories    : $REPOSITORIES"
 FILES=($RAW_FILES)
 echo "Files           : $FILES"
-PULL_REQUEST="$INPUT_PULL_REQUEST"
-echo "Pull request    : $PULL_REQUEST"
+DESTINATION_BRANCH="$INPUT_DESTINATION_BRANCH"
+echo "Destination Branch    : $DESTINATION_BRANCH"
 
 # set temp path
 TEMP_PATH="/ghafs/"
@@ -53,7 +53,7 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "Repository name: [$REPO_NAME]"
 
     # determine branch name
-    BRANCH_NAME="automation"
+    BRANCH_NAME=$DESTINATION_BRANCH
     if [ ${REPO_INFO[1]+yes} ]; then
         BRANCH_NAME="${REPO_INFO[1]}"
     fi

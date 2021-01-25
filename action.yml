@@ -18,6 +18,10 @@ inputs:
     description: 'Destination branch to commit the files in destination repos. Defaults to automation'
     required: false
     default: 'automation'
+  TERRASERVICE:
+    description: 'Name of the specific terraservice being moved with the action. Defaults to none'
+    required: false
+    default: 'none'
 
 runs:
   using: 'docker'

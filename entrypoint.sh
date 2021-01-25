@@ -23,6 +23,7 @@ FILES=($RAW_FILES)
 echo "Files           : $FILES"
 DESTINATION_BRANCH="$INPUT_DESTINATION_BRANCH"
 echo "Destination Branch    : $DESTINATION_BRANCH"
+TERRASERVICE="$INPUT_TERRASERVICE"
 
 # set temp path
 TEMP_PATH="/ghafs/"
@@ -35,7 +36,7 @@ echo "---------------------------------------------"
 echo " "
 
 # initalize git
-echo "Intiializing git"
+echo "Initializing git"
 git config --system core.longpaths true
 git config --global core.longpaths true
 git config --global user.email "action-bot@github.com" && git config --global user.name "Github Action"
@@ -43,8 +44,50 @@ echo "Git initialized"
 
 echo " "
 
+function commitFile {
+    # if destination is different, then set it
+    if [ ${FILE_TO_SYNC[1]+yes} ]; then
+        DEST_PATH="${FILE_TO_SYNC[1]}"
+        echo "Destination file path specified: [$DEST_PATH]"
+    fi
+
+    # check that source full path isn't null
+    if [ "$SOURCE_FULL_PATH" != "" ]; then
+        # test path to copy to
+        DEST_FULL_PATH="${GIT_PATH}/${DEST_PATH}"
+        DEST_FOLDER_PATH=$(dirname "$DEST_FULL_PATH")
+        if [ ! -d "$DEST_FOLDER_PATH" ]; then
+            echo "Creating [$DEST_FOLDER_PATH]"
+            mkdir -p $DEST_FOLDER_PATH
+        fi
+
+        # copy file
+        echo "Copying: [$SOURCE_FULL_PATH] to [$DEST_FULL_PATH]"
+        cp "${SOURCE_FULL_PATH}" "${DEST_FULL_PATH}" -r
+
+        # add file
+        git add "${DEST_FULL_PATH}" -f
+
+        # check if anything is new
+        if [ "$(git status --porcelain)" != "" ]; then
+            echo "Committing changes"
+            git commit -m "File sync from ${GITHUB_REPOSITORY}"
+        else
+            echo "Files not changed: [${SOURCE_FILE_NAME}]"
+        fi
+    else
+        echo "[${SOURCE_FULL_PATH}] not found in [${GITHUB_REPOSITORY}]"
+    fi
+    echo " "
+}
+
 # loop through all the repos
 for repository in "${REPOSITORIES[@]}"; do
+    snowflake='false'
+    if [[ $repository == *":snowflake" ]]; then
+        snowflake='true'
+        repository=($(echo "$repository" | cut -d':' -f 1))
+    fi
     echo "::group::$repository"
 
     # determine repo name
@@ -93,40 +136,16 @@ for repository in "${REPOSITORIES[@]}"; do
         DEST_PATH="${SOURCE_FILE_NAME}"
         echo "Destination file path: [$DEST_PATH]"
 
-        # if destination is different, then set it
-        if [ ${FILE_TO_SYNC[1]+yes} ]; then
-            DEST_PATH="${FILE_TO_SYNC[1]}"
-            echo "Destination file path specified: [$DEST_PATH]"
-        fi
-
-        # check that source full path isn't null
-        if [ "$SOURCE_FULL_PATH" != "" ]; then
-            # test path to copy to
-            DEST_FULL_PATH="${GIT_PATH}/${DEST_PATH}"
-            DEST_FOLDER_PATH=$(dirname "$DEST_FULL_PATH")
-            if [ ! -d "$DEST_FOLDER_PATH" ]; then
-                echo "Creating [$DEST_FOLDER_PATH]"
-                mkdir -p $DEST_FOLDER_PATH
-            fi
-
-            # copy file
-            echo "Copying: [$SOURCE_FULL_PATH] to [$DEST_FULL_PATH]"
-            cp "${SOURCE_FULL_PATH}" "${DEST_FULL_PATH}" -r
-
-            # add file
-            git add "${DEST_FULL_PATH}" -f
-
-            # check if anything is new
-            if [ "$(git status --porcelain)" != "" ]; then
-                echo "Committing changes"
-                git commit -m "File sync from ${GITHUB_REPOSITORY}"
-            else
-                echo "Files not changed: [${SOURCE_FILE_NAME}]"
-            fi
+        # If snowflake repo don't copy terraservice folder
+        if [[ $snowflake == 'false' ]]; then
+            commitFile
         else
-            echo "[${SOURCE_FULL_PATH}] not found in [${GITHUB_REPOSITORY}]"
+            if [[ $SOURCE_PATH != *"-${TERRASERVICE}/" ]]; then
+                commitFile
+            else
+                echo "${SOURCE_PATH} is skipped because ${repository} is a snowflake repo"
+            fi
         fi
-        echo " "
     done
 
     cd ${GIT_PATH}

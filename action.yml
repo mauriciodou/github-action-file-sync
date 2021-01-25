@@ -1,6 +1,6 @@
 name: 'File Sync'
 description: 'Github Action to sync files across repositories'
-author: 'kbrashears5'
+author: 'kbrashears5 and mauriciodou'
 branding:
   icon: 'upload-cloud'
   color: 'purple'
@@ -14,10 +14,10 @@ inputs:
   TOKEN:
     description: 'Personal access token with Repo privileges'
     required: true
-  PULL_REQUEST:
-    description: 'Whether or not to submit a pull request. Only works if branch is not master'
+  DESTINATION_BRANCH:
+    description: 'Destination branch to commit the files in destination repos. Defaults to automation'
     required: false
-    default: 'false'
+    default: 'automation'
 
 runs:
   using: 'docker'

@@ -44,7 +44,7 @@ echo "Git initialized"
 
 echo " "
 
-function commitFile {
+function stageFile {
     # if destination is different, then set it
     if [ ${FILE_TO_SYNC[1]+yes} ]; then
         DEST_PATH="${FILE_TO_SYNC[1]}"
@@ -67,18 +67,21 @@ function commitFile {
 
         # add file
         git add "${DEST_FULL_PATH}" -f
-
-        # check if anything is new
-        if [ "$(git status --porcelain)" != "" ]; then
-            echo "Committing changes"
-            git commit -m "File sync from ${GITHUB_REPOSITORY}"
-        else
-            echo "Files not changed: [${SOURCE_FILE_NAME}]"
-        fi
+        
     else
         echo "[${SOURCE_FULL_PATH}] not found in [${GITHUB_REPOSITORY}]"
     fi
     echo " "
+}
+
+function commitFile {
+    # check if anything is new
+    if [ "$(git status --porcelain)" != "" ]; then
+        echo "Committing changes"
+        git commit -m "File sync from ${GITHUB_REPOSITORY}"
+    else
+        echo "Files not changed: [${SOURCE_FILE_NAME}]"
+    fi
 }
 
 # loop through all the repos
@@ -138,9 +141,11 @@ for repository in "${REPOSITORIES[@]}"; do
 
         # If snowflake repo don't copy terraservice folder
         if [[ $snowflake == 'false' ]]; then
+            stageFile
             commitFile
         else
             if [[ $SOURCE_PATH != *"-${TERRASERVICE}/" ]]; then
+                stageFile
                 commitFile
             else
                 echo "${SOURCE_PATH} is skipped because ${repository} is a snowflake repo"
